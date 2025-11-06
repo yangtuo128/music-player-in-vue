@@ -1,0 +1,6 @@
+com\musicplayer\repository\UserRepository.class
+com\musicplayer\controller\UserController.class
+com\musicplayer\service\UserService.class
+com\musicplayer\entity\User.class
+com\musicplayer\MusicPlayerApplication.class
+com\musicplayer\service\impl\UserServiceImpl.class

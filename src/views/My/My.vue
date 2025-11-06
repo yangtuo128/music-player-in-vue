@@ -30,7 +30,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-import { getUserPlaylist } from '../../api/My';
+import { getUserPlaylist } from '../../api/My/my';
 
 export default {
   name: 'My',

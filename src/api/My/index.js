@@ -1,13 +1,9 @@
 import axios from '../api';
 
-/* export const getUserPlayRecord = uid => axios.get('/user/record', {
-  params: {
-    uid,
-    type: 1,
-  },
-}); */
+export const getUserInfo = uid => axios.get(`/api/user/${uid}`);
 
-// 加random的作用是使得get请求不走缓存。
+export const updateUserInfo = (uid, userInfo) => axios.put(`/api/user/${uid}`, userInfo);
+
 export const getUserLikelist = uid => axios.get('/likelist', {
   params: {
     uid,
