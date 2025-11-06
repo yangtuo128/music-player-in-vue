@@ -7,6 +7,8 @@ import LeaderBoard from './views/LeaderBoard/LeaderBoard.vue'; // 优化了项�
 import PlayListDetail from './views/PlayListDetail/PlayListDetail.vue';
 import PlayControl from './views/PlayControl/PlayControl.vue';
 import Login from './views/Login/Login.vue';
+import Register from './views/Register/Register.vue';
+import Profile from './views/Profile/Profile.vue';
 import RecentPlay from './views/RecentPlay/RecentPlay.vue';
 import store from './store';
 
@@ -55,6 +57,19 @@ const router = new Router({
       path: '/login',
       name: 'Login',
       component: Login,
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: Register,
+    },
+    {
+      path: '/profile',
+      name: 'Profile',
+      component: Profile,
+      meta: {
+        needLogin: true,
+      },
     },
     {
       path: '/recent-play',

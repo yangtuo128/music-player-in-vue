@@ -4,8 +4,10 @@
       <button class="toggle-button btn-hamburger">
         <i class="iconfont icon-cebianlan"></i>
       </button>
-      <router-link to="/home">推荐页</router-link>
-      <router-link to="/my">个人中心</router-link>
+      <router-link to="/home">首页</router-link>
+      <router-link to="/login">登录</router-link>
+      <router-link to="/register">注册</router-link>
+      <router-link to="/profile">个人中心</router-link>
       <router-link to="/search">
         <i class="iconfont icon-sousuo"></i>
       </router-link>

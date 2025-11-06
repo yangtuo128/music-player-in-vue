@@ -1,7 +1,7 @@
 <template>
   <section class="login-wrap">
-    <back-header title="手机号登录" color="red"></back-header>
-    <form action @submit="tryToLogin">
+    <back-header title="手机号注册" color="red"></back-header>
+    <form action @submit="tryToRegister">
       <div class="phone-number-container">
         <label>
           <i class="iconfont icon-shouji"></i>
@@ -26,13 +26,25 @@
         <input
           class="password-input"
           type="password"
-          placeholder="请输入密码"
+          placeholder="请设置密码"
           v-model="password"
           required
         >
       </div>
+      <div class="password-container">
+        <label for>
+          <i class="iconfont icon-suo"></i>
+        </label>
+        <input
+          class="password-input"
+          type="password"
+          placeholder="请确认密码"
+          v-model="confirmPassword"
+          required
+        >
+      </div>
       <div class="login-btn-container">
-        <input class="login-btn" type="submit" value="登录">
+        <input class="login-btn" type="submit" value="注册">
       </div>
     </form>
     <reminder :word="reminderWord" :ifShow="reminderFlag" :callback="resetReminder"></reminder>
@@ -43,13 +55,14 @@
 import { mapActions } from 'vuex';
 import BackHeader from '../../components/BackHeader.vue';
 import Reminder from '../../components/Reminder.vue';
-import { login } from '../../api/Login/login';
+import { register } from '../../api/Login';
 
 export default {
   data() {
     return {
       tel: null,
       password: null,
+      confirmPassword: null,
       reminderFlag: false,
       reminderWord: '',
     };
@@ -59,17 +72,23 @@ export default {
     cleanTel() {
       this.tel = null;
     },
-    async tryToLogin(e) {
-      e.preventDefault(); // 防止表单提交的默认行为：刷新当前页面
-      try {
-        const res = await login(this.tel, this.password);
-        localStorage.setItem('uid', res.id); // 先将用户的id即uid存储在localStorage里
-        await this.getThenSetLoginStatus(); // 更新vuex里的登录状态
-        this.$router.replace('/my');
-      } catch (error) {
-        console.dir(error, 'failed');
+    async tryToRegister(e) {
+      e.preventDefault();
+      
+      if (this.password !== this.confirmPassword) {
         this.reminderFlag = true;
-        this.reminderWord = error.response ? error.response.data : '登录失败';
+        this.reminderWord = '两次密码输入不一致';
+        return;
+      }
+      
+      try {
+        const res = await register(this.tel, this.password);
+        localStorage.setItem('uid', res.id);
+        await this.getThenSetLoginStatus();
+        this.$router.replace('/profile');
+      } catch (error) {
+        this.reminderFlag = true;
+        this.reminderWord = error.response ? error.response.data : '注册失败';
       }
     },
     resetReminder() {
@@ -96,32 +115,33 @@ export default {
   .tel-input,
   .password-input {
     font-size: 16px;
-    margin-left: 0.1rem;
     border: none;
-  }
-  .iconfont {
-    font-size: 18px;
-    color: gray;
-  }
-  .country-code {
-    font-size: 16px;
-    margin: 0 0.1rem;
+    outline: none;
+    width: 80%;
+    margin-left: 0.1rem;
   }
   .clean-btn {
     position: absolute;
-    right: .05rem;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
   }
   .login-btn-container {
-    text-align: center;
-    .login-btn {
-      background: #d44439;
-      color: #f1f1f1;
-      border: none;
-      width: 90%;
-      height: 0.4rem;
-      border-radius: 0.2rem;
-      font-size: 16px;
-    }
+    margin: 0.4rem 0.2rem;
+  }
+  .login-btn {
+    width: 100%;
+    height: 0.4rem;
+    background-color: #d44439;
+    color: white;
+    border: none;
+    border-radius: 0.05rem;
+    font-size: 16px;
+    cursor: pointer;
   }
 }
 </style>
