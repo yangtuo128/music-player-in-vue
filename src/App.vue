@@ -43,7 +43,7 @@ export default {
   },
   computed: {
     shouldHaveNav(){
-      return ['/home', '/my'].indexOf(this.$route.path) !== -1
+      return ['/home', '/my', '/message'].indexOf(this.$route.path) !== -1
     }
   },
   methods: {

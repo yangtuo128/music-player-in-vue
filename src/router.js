@@ -10,6 +10,7 @@ import Login from './views/Login/Login.vue';
 import Register from './views/Register/Register.vue';
 import Profile from './views/Profile/Profile.vue';
 import RecentPlay from './views/RecentPlay/RecentPlay.vue';
+import Message from './views/Message/Message.vue';
 import store from './store';
 
 Vue.use(Router);
@@ -75,6 +76,14 @@ const router = new Router({
       path: '/recent-play',
       name: 'RecentPlay',
       component: RecentPlay,
+    },
+    {
+      path: '/message',
+      name: 'Message',
+      component: Message,
+      meta: {
+        needLogin: true,
+      },
     },
   ],
 });

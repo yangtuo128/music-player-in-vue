@@ -8,6 +8,9 @@
       <router-link to="/login">登录</router-link>
       <router-link to="/register">注册</router-link>
       <router-link to="/profile">个人中心</router-link>
+      <router-link to="/message">
+        <i class="iconfont icon-xiaoxi"></i>
+      </router-link>
       <router-link to="/search">
         <i class="iconfont icon-sousuo"></i>
       </router-link>
