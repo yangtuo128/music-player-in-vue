@@ -39,6 +39,12 @@ export default {
   },
   async getThenSetLoginStatus({ commit }) {
     try {
+      // 检查是否是内部测试账号登录
+      const uid = localStorage.getItem('uid');
+      if (uid === 'admin') {
+        commit(Types.UPDATE_LOGIN_STATUS, true);
+        return;
+      }
       await loginRegisterApi.getLoginStatus();
       commit(Types.UPDATE_LOGIN_STATUS, true);
     } catch (e) {
