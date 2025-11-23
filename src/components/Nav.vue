@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="$route.path !== '/search'">
     <header class="mp-header">
       <button class="toggle-button btn-hamburger">
         <i class="iconfont icon-cebianlan"></i>

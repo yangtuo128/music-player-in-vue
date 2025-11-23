@@ -18,6 +18,11 @@ Vue.use(Router);
 const router = new Router({
   routes: [
     {
+      path: '/search-history',
+      name: 'SearchHistory',
+      component: () => import('./views/Search/SearchHistory.vue'),
+    },
+    {
       path: '/',
       redirect: '/home',
     },
