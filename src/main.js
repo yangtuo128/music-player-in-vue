@@ -1,6 +1,9 @@
 import Vue from 'vue'
-import $ from 'zepto' /* FIXME: 暂时不能通过这种方式引入zepto */
+import 'regenerator-runtime/runtime' // 引入regenerator-runtime
 import './style/index.less' // 引入自定义的全局样式
+// 使用script-loader引入zepto
+require('script-loader!zepto/dist/zepto.min.js')
+const $ = window.Zepto
 import VueAwesomeSwiper from 'vue-awesome-swiper' // 引入Vue版本的swiper插件
 import 'swiper/dist/css/swiper.css' // 引入swiper插件的样式文件
 import App from './App.vue'

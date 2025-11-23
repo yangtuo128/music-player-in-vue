@@ -10,27 +10,28 @@ module.exports = {
   // When building in multi-pages mode, the webpack config will contain different plugins
   // (there will be multiple instances of html-webpack-plugin and preload-webpack-plugin).
   // Make sure to run vue inspect if you are trying to modify the options for those plugins.
-  pages: {
-    index: {
-      // entry for the pages
-      entry: 'src/main.js', // Yang 这里是项目的入口文件
-      // the source template
-      template: 'src/pages/index/index.html',
-      // output as dist/index.html
-      filename: 'index.html',
-      // when using title option,
-      // template title tag needs to be <title><%= htmlWebpackPlugin.options.title %></title>
-      title: '首页',
-      // chunks to include on this pages, by default includes
-      // extracted common chunks and vendor chunks.
-      chunks: ['chunk-vendors', 'chunk-common', 'index'],
-    },
-    // when using the entry-only string format,
-    // template is inferred to be `public/subpage.html`
-    // and falls back to `public/index.html` if not found.
-    // Output filename is inferred to be `subpage.html`.
-    // subpage: ''
-  },
+  // 移除pages配置，使用默认的public/index.html模板
+  // pages: {
+  //   index: {
+  //     // entry for the pages
+  //     entry: 'src/main.js', // Yang 这里是项目的入口文件
+  //     // the source template
+  //     template: 'src/pages/index/index.html',
+  //     // output as dist/index.html
+  //     filename: 'index.html',
+  //     // when using title option,
+  //     // template title tag needs to be <title><%= htmlWebpackPlugin.options.title %></title>
+  //     title: '首页',
+  //     // chunks to include on this pages, by default includes
+  //     // extracted common chunks and vendor chunks.
+  //     chunks: ['chunk-vendors', 'chunk-common', 'index'],
+  //   },
+  //   // when using the entry-only string format,
+  //   // template is inferred to be `public/subpage.html`
+  //   // and falls back to `public/index.html` if not found.
+  //   // Output filename is inferred to be `subpage.html`.
+  //   // subpage: ''
+  // },
 
   // eslint-loader 是否在保存的时候检查
   lintOnSave: true,
