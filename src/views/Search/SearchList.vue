@@ -1,6 +1,9 @@
 <template>
   <section class="container" @click='handleClick'>
-    <h2 class="title">{{title}}</h2>
+    <div class="title-container">
+      <h2 class="title">{{title}}</h2>
+      <button v-if="title === '历史记录' && list.length > 0" class="clear-btn" @click.stop="clearHistory">清除历史</button>
+    </div>
     <ul class="search-list">
       <li v-for="(item, index) in list" :key="index" class="item">
         {{item.first}}
@@ -19,6 +22,9 @@ export default {
       if (src.className === 'item') {
         this.doAfterUserClick(src.innerText);
       }
+    },
+    clearHistory() {
+      this.$emit('clear-history');
     },
   },
 };

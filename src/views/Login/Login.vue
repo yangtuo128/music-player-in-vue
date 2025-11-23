@@ -62,6 +62,14 @@ export default {
     async tryToLogin(e) {
       e.preventDefault(); // 防止表单提交的默认行为：刷新当前页面
       try {
+        // 内部账号登录逻辑
+        if (this.tel === 'admin' && this.password === '123456') {
+          localStorage.setItem('uid', 'admin'); // 存储admin用户ID
+          await this.getThenSetLoginStatus(); // 更新vuex里的登录状态
+          this.$router.replace('/my');
+          return;
+        }
+        // 正常登录逻辑
         const res = await login(this.tel, this.password);
         localStorage.setItem('uid', res.id); // 先将用户的id即uid存储在localStorage里
         await this.getThenSetLoginStatus(); // 更新vuex里的登录状态
