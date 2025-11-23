@@ -11,6 +11,7 @@ import Register from './views/Register/Register.vue';
 import Profile from './views/Profile/Profile.vue';
 import RecentPlay from './views/RecentPlay/RecentPlay.vue';
 import Message from './views/Message/Message.vue';
+import MemberCenter from './views/MemberCenter/MemberCenter.vue';
 import store from './store';
 
 Vue.use(Router);
@@ -82,10 +83,18 @@ const router = new Router({
       name: 'RecentPlay',
       component: RecentPlay,
     },
-    {
+    { 
       path: '/message',
       name: 'Message',
       component: Message,
+      meta: {
+        needLogin: true,
+      },
+    },
+    { 
+      path: '/member-center',
+      name: 'MemberCenter',
+      component: MemberCenter,
       meta: {
         needLogin: true,
       },

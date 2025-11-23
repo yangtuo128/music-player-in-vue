@@ -17,13 +17,14 @@
         <Nav v-if="shouldHaveNav" show-search></Nav>
         <!-- keep-alive的作用之一是：保存未登录状态下，用户的搜索历史。是通过缓存搜索组件和其子组件SearchList做到的 -->
         <!-- <keep-alive :include="['Search', 'SearchList']"> -->
-        <!-- 下面这种写法可能比上面的更好，缓存了更多的组件，性能更优秀-->
+        <!-- 下面这种写法可能比上面的更好，缓存了更多的组件，性能更优秀--> 
         <keep-alive :exclude="['PlaylistDetail', 'MyAudio', 'PlayControl']">
           <router-view></router-view>
         </keep-alive>
         <!-- router-view放在合适的地方，slideout才能正常工作 -->
       </main>
     </Slideout>
+    <bottom-menu v-if="shouldHaveBottomMenu"></bottom-menu>
   </div>
 </template>
 
@@ -33,17 +34,22 @@ import { mapActions } from "vuex";
 import MyAudio from "./components/MyAudio.vue";
 import Nav from "./components/Nav.vue";
 import SideBarMenu from "./components/SideBarMenu.vue";
+import BottomMenu from "./components/BottomMenu.vue";
 
 export default {
   components: {
     Slideout,
     MyAudio,
     SideBarMenu,
-    Nav
+    Nav,
+    BottomMenu
   },
   computed: {
     shouldHaveNav(){
       return ['/home', '/my', '/message'].indexOf(this.$route.path) !== -1 && this.$route.path !== '/search'
+    },
+    shouldHaveBottomMenu(){
+      return ['/song', '/play-list-detail'].indexOf(this.$route.path) === -1
     }
   },
   methods: {
