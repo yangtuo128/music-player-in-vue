@@ -1,15 +1,31 @@
 <template>
   <div class="search-box left-right-padding-box" ref="searchBox">
     <back-header color="red" :input='true' :doAfterUserEnter="startSearch"></back-header>
-    <search-list v-if="!showResultPageFlag" :doAfterUserClick='startSearch' :list="hots" title="热门搜索" class="hot-search"></search-list>
-    <div v-if="!showResultPageFlag" class="history-entry">
-      <router-link to="/search-history" class="history-link">
-        <span>查看全部搜索历史</span>
-        <i class="iconfont icon-arrow-right"></i>
-      </router-link>
+    
+    <!-- 顶部菜单栏分类 -->
+    <div class="category-tabs">
+      <div 
+        v-for="(tab, index) in categoryTabs" 
+        :key="index"
+        class="tab-item"
+        :class="{ active: activeTab === index }"
+        @click="switchTab(index)"
+      >
+        {{ tab.name }}
+      </div>
+      
+      <!-- 搜索管理按钮 -->
+      <div class="search-management">
+        <router-link to="/search-history" class="management-btn">
+          搜索管理
+          <i class="iconfont icon-arrow-right"></i>
+        </router-link>
+      </div>
     </div>
-    <search-list v-if="!showResultPageFlag && history.length > 0" :doAfterUserClick='startSearch' :list="history.slice(0, 10)" title="最近搜索" @clear-history="clearHistory" @delete-history="deleteHistory"></search-list>
-    <search-result-list v-else-if="showResultPageFlag" :tracks="songList" class="search-result-list"></search-result-list>
+    
+    <search-list v-if="!showResultPageFlag" :doAfterUserClick='startSearch' :list="hots" title="热门搜索" class="hot-search"></search-list>
+    <search-list v-if="!showResultPageFlag" :doAfterUserClick='startSearch' :list="currentHistory" title="历史记录" @clear-history="clearHistory"></search-list>
+    <search-result-list v-else :tracks="songList" class="search-result-list"></search-result-list>
   </div>
 </template>
 
@@ -29,11 +45,23 @@ export default {
   },
   data() {
     return {
+      categoryTabs: [
+        { name: '商品', type: 'product' },
+        { name: '店铺', type: 'shop' },
+        { name: '搜索', type: 'search' }
+      ],
+      activeTab: 0,
       hots: [],
       showResultPageFlag: false,
       history: [],
       songList: [],
     };
+  },
+  computed: {
+    currentHistory() {
+      // 根据当前选中的标签过滤搜索历史
+      return this.history.filter(item => item.type === this.categoryTabs[this.activeTab].type);
+    }
   },
   created() {
     this.getData();
@@ -50,12 +78,13 @@ export default {
       }
     },
     clearHistory() {
-      this.history = [];
-      localStorage.removeItem('searchHistory');
+      // 根据当前选中的标签清除搜索历史
+      const currentType = this.categoryTabs[this.activeTab].type;
+      this.history = this.history.filter(item => item.type !== currentType);
+      this.saveHistory();
     },
-    deleteHistory(index) {
-      this.history.splice(index, 1);
-      localStorage.setItem('searchHistory', JSON.stringify(this.history));
+    switchTab(index) {
+      this.activeTab = index;
     },
     async getData() {
       const data = await getHotSearch();
@@ -70,9 +99,14 @@ export default {
       this.getSearchResultData(theValueToSearch);
       // push一个对象进history数组的原因是，为了使得history和hots的格式一致，这样这两部分才能共用一个SearchList组件
       // 检查是否已经存在相同的搜索历史
-      const isExist = this.history.some(item => item.first === theValueToSearch);
+      const currentType = this.categoryTabs[this.activeTab].type;
+      const isExist = this.history.some(item => item.first === theValueToSearch && item.type === currentType);
       if (!isExist) {
-        this.history.push({ first: theValueToSearch });
+        this.history.push({ 
+          first: theValueToSearch, 
+          type: currentType,
+          searchTime: new Date().toISOString()
+        });
         this.saveHistory();
       }
     },
@@ -97,24 +131,56 @@ export default {
   left: 0;
   width: 100%;
   background: white;
-  .hot-search {
-    margin-top: 0.44rem;
-  }
-  .history-entry {
-    padding: 0.1rem 0;
-    margin: 0.1rem 0;
-    .history-link {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #333;
-      text-decoration: none;
-      .iconfont {
+  
+  .category-tabs {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-bottom: 1px solid #e4e4e4;
+    padding: 0 0.2rem;
+    
+    .tab-item {
+      flex: 1;
+      padding: 0.15rem 0;
+      text-align: center;
+      font-size: 0.16rem;
+      color: #666;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+      
+      &.active {
+        color: #d44439;
+        border-bottom-color: #d44439;
+      }
+    }
+    
+    .search-management {
+      width: 0.8rem;
+      
+      .management-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: transparent;
+        border: none;
         font-size: 0.14rem;
-        color: #999;
+        color: #666;
+        padding: 0.05rem 0;
+        cursor: pointer;
+        text-decoration: none;
+        
+        .iconfont {
+          font-size: 0.12rem;
+          margin-left: 0.05rem;
+        }
       }
     }
   }
+  
+  .hot-search {
+    margin-top: 0.44rem;
+  }
+  
   .search-result-list {
     padding-top: 0.44rem;
   }
