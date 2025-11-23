@@ -1,5 +1,5 @@
 module.exports = {
-  baseUrl: process.env.NODE_ENV === 'production' ? './' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
 
   outputDir: 'dist',
 
@@ -86,9 +86,6 @@ module.exports = {
 
   // 配置高于chainWebpack中关于 css loader 的配置
   css: {
-    // 是否开启支持 foo.module.css 样式
-    modules: false,
-
     // 是否使用 css 分离插件 ExtractTextPlugin，采用独立样式文件载入，不采用 <style> 方式内联至 html 文件中
     extract: false, // Yang 把这个参数修改为false，为的是使得style标签支持热更新
 
@@ -99,6 +96,7 @@ module.exports = {
     loaderOptions: {
       css: {
         // options here will be passed to css-loader
+        modules: false
       },
 
       postcss: {
