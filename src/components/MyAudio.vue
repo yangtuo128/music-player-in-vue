@@ -34,6 +34,12 @@ import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'MyAudio',
+  data() {
+    return {
+      timer: null,
+      volume: 0.7, // 默认音量70%
+    };
+  },
   methods: {
     ...mapActions([
       'getThenSetDuration',
@@ -85,6 +91,20 @@ export default {
     saveAudio() {
       localStorage.setItem('audioElement', this.$refs.audio);
     },
+    // 设置播放进度
+    setAudioTime(time) {
+      if (this.$refs.audio) {
+        this.$refs.audio.currentTime = time;
+        this.getThenSetCurrentTime(time);
+      }
+    },
+    // 设置音量
+    setAudioVolume(volume) {
+      if (this.$refs.audio) {
+        this.$refs.audio.volume = volume;
+        this.volume = volume;
+      }
+    },
   },
   computed: {
     ...mapGetters(['songInfo', 'isPlaying']),
@@ -109,6 +129,30 @@ export default {
       // debugger;
       newValue ? this.toggleToPlayStatus() : this.toggleToStopStatus();
     },
+    songInfo(newSong) {
+      if (newSong.musicUrl) {
+        // 确保音频元素已经加载完成
+        this.$nextTick(() => {
+          this.toggleToPlayStatus();
+        });
+      }
+    },
+  },
+  mounted() {
+    // 初始化音量
+    if (this.$refs.audio) {
+      this.$refs.audio.volume = this.volume;
+    }
+    
+    // 监听来自PlayControl组件的消息
+    this.$root.$on('setAudioTime', this.setAudioTime);
+    this.$root.$on('setAudioVolume', this.setAudioVolume);
+  },
+  beforeDestroy() {
+    this.clearTimer();
+    // 移除事件监听器
+    this.$root.$off('setAudioTime', this.setAudioTime);
+    this.$root.$off('setAudioVolume', this.setAudioVolume);
   },
 };
 </script>

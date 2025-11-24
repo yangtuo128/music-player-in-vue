@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import 'core-js'
 import 'regenerator-runtime/runtime' // 引入regenerator-runtime
 import './style/index.less' // 引入自定义的全局样式
 // 使用script-loader引入zepto
