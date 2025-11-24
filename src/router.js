@@ -92,21 +92,21 @@ const router = new Router({
         needLogin: true,
       },
     },
-    {
-      path: '/cart',
-      name: 'Cart',
-      component: Cart,
-      meta: {
-        needLogin: true,
-      },
+    { 
+      path: '/member-center', 
+      name: 'MemberCenter', 
+      component: MemberCenter, 
+      meta: { 
+        needLogin: true, 
+      }, 
     },
-    {
-      path: '/member-center',
-      name: 'MemberCenter',
-      component: MemberCenter,
-      meta: {
-        needLogin: true,
-      },
+    { 
+      path: '/cart', 
+      name: 'Cart', 
+      component: Cart, 
+      meta: { 
+        needLogin: true, 
+      }, 
     },
   ],
 });
