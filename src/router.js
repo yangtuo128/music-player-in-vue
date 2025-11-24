@@ -12,6 +12,7 @@ import Profile from './views/Profile/Profile.vue';
 import RecentPlay from './views/RecentPlay/RecentPlay.vue';
 import Message from './views/Message/Message.vue';
 import MemberCenter from './views/MemberCenter/MemberCenter.vue';
+import Cart from './views/Cart/Cart.vue';
 import store from './store';
 
 Vue.use(Router);
@@ -95,7 +96,15 @@ const router = new Router({
       path: '/member-center',
       name: 'MemberCenter',
       component: MemberCenter,
-      meta: {
+      meta: { 
+        needLogin: true,
+      },
+    },
+    { 
+      path: '/cart',
+      name: 'Cart',
+      component: Cart,
+      meta: { 
         needLogin: true,
       },
     },
