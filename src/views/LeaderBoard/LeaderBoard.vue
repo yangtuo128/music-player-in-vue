@@ -13,10 +13,10 @@
 </template>
 
 <script>
-import BackHeader from "../../components/BackHeader.vue";
-import OfficialList from "./OfficialList.vue";
-import TopList from "./TopList.vue";
-import { getToplistDetail } from "../../api/LeaderBoard/LeaderBoard";
+import BackHeader from '../../components/BackHeader.vue';
+import OfficialList from './OfficialList.vue';
+import TopList from './TopList.vue';
+import { getToplistDetail } from '../../api/LeaderBoard/LeaderBoard';
 
 export default {
   data() {
@@ -24,27 +24,27 @@ export default {
       officialList: [],
       recommendList: [],
       internationalList: [],
-      moreList: []
+      moreList: [],
     };
   },
   components: {
     BackHeader,
     OfficialList,
-    TopList
+    TopList,
   },
   mounted() {
     getToplistDetail()
-      .then(res => {
+      .then((res) => {
         const { list } = res;
         this.officialList = list.slice(0, 4);
         this.recommendList = list.slice(4, 10);
         this.internationalList = list.slice(10, 16);
         this.moreList = list.slice(16);
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(err);
       });
-  }
+  },
 };
 </script>
 

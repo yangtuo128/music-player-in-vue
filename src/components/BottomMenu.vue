@@ -16,13 +16,13 @@
       <i class="iconfont icon-wode"></i>
       <span>我的</span>
     </router-link>
-    <router-link to="/member-center" class="menu-item">
-      <i class="iconfont icon-vip"></i>
-      <span>会员中心</span>
-    </router-link>
     <router-link to="/cart" class="menu-item">
       <i class="iconfont icon-gouwuche"></i>
       <span>购物车</span>
+    </router-link>
+    <router-link to="/member-center" class="menu-item">
+      <i class="iconfont icon-vip"></i>
+      <span>会员中心</span>
     </router-link>
   </section>
 </template>

@@ -35,7 +35,7 @@
         <h2 class="section-title">已结束的聊天</h2>
         <div class="chat-item" v-for="chat in endedChats" :key="chat.id">
           <div class="chat-avatar">
-            <img :src="chat.avatar" alt="{{ chat.name }}">
+            <img :src="chat.avatar" :alt="chat.name">
           </div>
           <div class="chat-info">
             <div class="chat-name-time">
@@ -52,7 +52,7 @@
         <h2 class="section-title">最近的消息</h2>
         <div class="message-item" v-for="message in recentMessages" :key="message.id">
           <div class="message-avatar">
-            <img :src="message.avatar" alt="{{ message.sender }}">
+            <img :src="message.avatar" :alt="message.sender">
           </div>
           <div class="message-content">
             <div class="message-header">
@@ -115,7 +115,7 @@ export default {
       permissions: {
         orders: true,
         benefits: true,
-        notifications: true
+        notifications: true,
       },
       endedChats: [
         {
@@ -123,15 +123,15 @@ export default {
           name: '客服小助手',
           avatar: 'https://picsum.photos/seed/chat1/40/40.jpg',
           lastMessage: '您的订单已完成，感谢使用',
-          time: '2023-10-01 14:30'
+          time: '2023-10-01 14:30',
         },
         {
           id: 2,
           name: '活动专员',
           avatar: 'https://picsum.photos/seed/chat2/40/40.jpg',
           lastMessage: '您的福利已发放，请查收',
-          time: '2023-09-28 09:15'
-        }
+          time: '2023-09-28 09:15',
+        },
       ],
       recentMessages: [
         {
@@ -140,7 +140,7 @@ export default {
           avatar: 'https://picsum.photos/seed/sys1/40/40.jpg',
           content: '您的会员服务已到期，请及时续费',
           time: '2023-10-05 16:45',
-          unread: true
+          unread: true,
         },
         {
           id: 2,
@@ -148,7 +148,7 @@ export default {
           avatar: 'https://picsum.photos/seed/fan1/40/40.jpg',
           content: '新的粉丝福利已上线，快来领取',
           time: '2023-10-05 10:20',
-          unread: true
+          unread: true,
         },
         {
           id: 3,
@@ -156,9 +156,9 @@ export default {
           avatar: 'https://picsum.photos/seed/order1/40/40.jpg',
           content: '您的订单已发货，预计明天送达',
           time: '2023-10-04 18:30',
-          unread: false
-        }
-      ]
+          unread: false,
+        },
+      ],
     };
   },
   methods: {
@@ -175,8 +175,8 @@ export default {
       // 这里可以添加保存权限的逻辑
       this.showPermissionModal = false;
       this.$message.success('权限设置已保存');
-    }
-  }
+    },
+  },
 };
 </script>
 

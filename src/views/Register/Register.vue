@@ -74,13 +74,13 @@ export default {
     },
     async tryToRegister(e) {
       e.preventDefault();
-      
+
       if (this.password !== this.confirmPassword) {
         this.reminderFlag = true;
         this.reminderWord = '两次密码输入不一致';
         return;
       }
-      
+
       try {
         const res = await register(this.tel, this.password);
         localStorage.setItem('uid', res.id);

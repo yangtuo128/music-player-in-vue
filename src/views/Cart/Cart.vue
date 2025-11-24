@@ -2,92 +2,102 @@
   <div class="cart-container">
     <!-- 顶部导航 -->
     <div class="cart-header">
-      <h1>购物车</h1>
+      <div class="header-title">购物车</div>
       <div class="header-right">
-        <button @click="toggleManageMode" class="manage-btn">
+        <button class="manage-btn" @click="toggleManageMode">
           {{ isManageMode ? '完成' : '管理' }}
         </button>
       </div>
     </div>
 
     <!-- 分类标签 -->
-    <div class="cart-tabs">
-      <div 
-        v-for="tab in tabs" 
-        :key="tab.id"
+    <div class="category-tabs">
+      <div
         class="tab-item"
-        :class="{ active: activeTab === tab.id }"
-        @click="switchTab(tab.id)"
+        :class="{ active: currentCategory === 'all' }"
+        @click="switchCategory('all')"
       >
-        {{ tab.name }}
+        全部
+      </div>
+      <div
+        class="tab-item"
+        :class="{ active: currentCategory === 'favorite' }"
+        @click="switchCategory('favorite')"
+      >
+        收藏
+      </div>
+      <div
+        class="tab-item"
+        :class="{ active: currentCategory === 'frequent' }"
+        @click="switchCategory('frequent')"
+      >
+        常购
       </div>
     </div>
 
     <!-- 购物车列表 -->
     <div class="cart-list">
-      <!-- 全选按钮 -->
-      <div class="select-all" v-if="isManageMode">
-        <input 
-          type="checkbox" 
-          id="select-all"
-          v-model="selectAll"
-          @change="handleSelectAll"
-        >
-        <label for="select-all">全选</label>
-      </div>
-
-      <!-- 商品列表 -->
-      <div 
-        v-for="item in filteredItems" 
-        :key="item.id"
+      <div
         class="cart-item"
+        v-for="item in filteredItems"
+        :key="item.id"
       >
         <!-- 选择框 -->
-        <div class="item-select" v-if="isManageMode">
-          <input 
+        <div class="item-select">
+          <input
             type="checkbox"
-            :id="'item-' + item.id"
-            v-model="selectedItems"
-            :value="item.id"
+            :checked="item.selected"
+            @change="toggleItemSelect(item.id)"
           >
-          <label :for="'item-' + item.id"></label>
+        </div>
+
+        <!-- 商品图片 -->
+        <div class="item-image">
+          <img :src="item.image" :alt="item.name">
         </div>
 
         <!-- 商品信息 -->
         <div class="item-info">
-          <img :src="item.image" alt="" class="item-image">
-          <div class="item-details">
-            <h3 class="item-name">{{ item.name }}</h3>
-            <p class="item-description">{{ item.description }}</p>
-            <div class="item-price">¥{{ item.price }}</div>
-          </div>
+          <div class="item-name">{{ item.name }}</div>
+          <div class="item-desc">{{ item.description }}</div>
+          <div class="item-price">¥{{ item.price }}</div>
         </div>
 
-        <!-- 商品类型标识 -->
-        <div 
-          class="item-type"
-          :class="item.type === 'room' ? 'room-type' : 'product-type'"
-        >
-          {{ item.type === 'room' ? '房型' : '商品' }}
+        <!-- 操作按钮 -->
+        <div class="item-actions">
+          <button class="action-btn favorite-btn" @click="toggleFavorite(item.id)">
+            <i :class="item.isFavorite ? 'iconfont icon-shoucang1' : 'iconfont icon-shoucang' "></i>
+          </button>
+          <button class="action-btn delete-btn" @click="deleteItem(item.id)">
+            <i class="iconfont icon-shanchu"></i>
+          </button>
         </div>
       </div>
     </div>
 
     <!-- 空购物车提示 -->
     <div class="empty-cart" v-if="filteredItems.length === 0">
-      <img src="../../assets/loading.jpg" alt="空购物车" class="empty-image">
+      <i class="iconfont icon-gouwuche"></i>
       <p>购物车是空的</p>
-      <button class="go-shopping-btn">去购物</button>
     </div>
 
     <!-- 底部操作栏 -->
-    <div class="cart-footer" v-if="isManageMode && selectedItems.length > 0">
+    <div class="cart-footer" v-if="filteredItems.length > 0">
       <div class="footer-left">
-        <span>已选 {{ selectedItems.length }} 件</span>
+        <input
+          type="checkbox"
+          :checked="isAllSelected"
+          @change="toggleAllSelect"
+        >
+        <span>全选</span>
       </div>
       <div class="footer-right">
-        <button class="delete-btn" @click="batchDelete">删除</button>
-        <button class="checkout-btn" @click="batchCheckout">结算</button>
+        <div class="total-price">
+          合计: ¥{{ totalPrice }}
+        </div>
+        <button class="settle-btn" @click="settle">
+          结算 ({{ selectedCount }})
+        </button>
       </div>
     </div>
   </div>
@@ -99,342 +109,294 @@ export default {
   data() {
     return {
       isManageMode: false,
-      activeTab: 1,
-      selectAll: false,
-      selectedItems: [],
-      tabs: [
-        { id: 1, name: '全部' },
-        { id: 2, name: '收藏' },
-        { id: 3, name: '常购' }
-      ],
-      // 模拟购物车数据
+      currentCategory: 'all',
       cartItems: [
         {
           id: 1,
           name: '豪华大床房',
-          description: '宽敞明亮，配备舒适大床和现代化设施',
-          price: 399,
-          image: 'https://via.placeholder.com/100x100/FF6B6B/FFFFFF?text=Room',
-          type: 'room',
+          description: '面积: 30㎡ | 楼层: 5-10层 | 床型: 1.8m大床',
+          price: 299,
+          image: 'https://via.placeholder.com/80',
+          selected: false,
           isFavorite: true,
-          isFrequentlyBought: false
+          isFrequent: true,
         },
         {
           id: 2,
-          name: '标准双人房',
-          description: '经济实惠，适合双人入住',
-          price: 299,
-          image: 'https://via.placeholder.com/100x100/4ECDC4/FFFFFF?text=Room',
-          type: 'room',
+          name: '商务双床房',
+          description: '面积: 35㎡ | 楼层: 11-15层 | 床型: 1.2m双床',
+          price: 329,
+          image: 'https://via.placeholder.com/80',
+          selected: false,
           isFavorite: false,
-          isFrequentlyBought: true
+          isFrequent: true,
         },
         {
           id: 3,
-          name: '精美茶具套装',
-          description: '高品质陶瓷茶具，送礼自用皆宜',
-          price: 199,
-          image: 'https://via.placeholder.com/100x100/45B7D1/FFFFFF?text=Product',
-          type: 'product',
+          name: '行政套房',
+          description: '面积: 60㎡ | 楼层: 16-20层 | 床型: 2m大床',
+          price: 599,
+          image: 'https://via.placeholder.com/80',
+          selected: false,
           isFavorite: true,
-          isFrequentlyBought: true
+          isFrequent: false,
         },
-        {
-          id: 4,
-          name: '纯棉床上用品',
-          description: '柔软舒适，亲肤透气',
-          price: 299,
-          image: 'https://via.placeholder.com/100x100/96CEB4/FFFFFF?text=Product',
-          type: 'product',
-          isFavorite: false,
-          isFrequentlyBought: false
-        }
-      ]
+      ],
     };
   },
   computed: {
+    // 过滤当前分类的商品
     filteredItems() {
-      switch (this.activeTab) {
-        case 1: // 全部
-          return this.cartItems;
-        case 2: // 收藏
+      switch (this.currentCategory) {
+        case 'favorite':
           return this.cartItems.filter(item => item.isFavorite);
-        case 3: // 常购
-          return this.cartItems.filter(item => item.isFrequentlyBought);
+        case 'frequent':
+          return this.cartItems.filter(item => item.isFrequent);
         default:
           return this.cartItems;
       }
-    }
+    },
+    // 全选状态
+    isAllSelected() {
+      return this.filteredItems.length > 0 && this.filteredItems.every(item => item.selected);
+    },
+    // 已选商品数量
+    selectedCount() {
+      return this.filteredItems.filter(item => item.selected).length;
+    },
+    // 总价
+    totalPrice() {
+      return this.filteredItems
+        .filter(item => item.selected)
+        .reduce((total, item) => total + item.price, 0)
+        .toFixed(2);
+    },
   },
   methods: {
+    // 切换管理模式
     toggleManageMode() {
       this.isManageMode = !this.isManageMode;
-      if (!this.isManageMode) {
-        this.selectedItems = [];
-        this.selectAll = false;
+    },
+    // 切换分类
+    switchCategory(category) {
+      this.currentCategory = category;
+    },
+    // 切换商品选择状态
+    toggleItemSelect(itemId) {
+      const item = this.cartItems.find(item => item.id === itemId);
+      if (item) {
+        item.selected = !item.selected;
       }
     },
-    switchTab(tabId) {
-      this.activeTab = tabId;
-      this.selectedItems = [];
-      this.selectAll = false;
+    // 全选/取消全选
+    toggleAllSelect(e) {
+      const isChecked = e.target.checked;
+      this.filteredItems.forEach((item) => {
+        item.selected = isChecked;
+      });
     },
-    handleSelectAll() {
-      if (this.selectAll) {
-        this.selectedItems = this.filteredItems.map(item => item.id);
-      } else {
-        this.selectedItems = [];
+    // 切换收藏状态
+    toggleFavorite(itemId) {
+      const item = this.cartItems.find(item => item.id === itemId);
+      if (item) {
+        item.isFavorite = !item.isFavorite;
       }
     },
-    batchDelete() {
-      if (confirm(`确定要删除选中的 ${this.selectedItems.length} 件商品吗？`)) {
-        this.cartItems = this.cartItems.filter(item => !this.selectedItems.includes(item.id));
-        this.selectedItems = [];
-        this.selectAll = false;
-        alert('删除成功');
-      }
+    // 删除商品
+    deleteItem(itemId) {
+      this.cartItems = this.cartItems.filter(item => item.id !== itemId);
     },
-    batchCheckout() {
-      alert(`已选择 ${this.selectedItems.length} 件商品，准备结算`);
-      // 这里可以添加结算逻辑
-    }
-  }
+    // 结算
+    settle() {
+      const selectedItems = this.filteredItems.filter(item => item.selected);
+      if (selectedItems.length === 0) {
+        alert('请选择要结算的商品');
+        return;
+      }
+      alert(`结算成功！共 ${selectedItems.length} 件商品，总价 ¥${this.totalPrice}`);
+    },
+  },
 };
 </script>
 
-<style scoped lang='less'>
+<style scoped>
 .cart-container {
-  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: #f5f5f5;
-  padding-bottom: 0.5rem; /* 为底部菜单留出空间 */
 }
 
 .cart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.2rem 0.3rem;
+  padding: 0.2rem;
   background-color: #fff;
-  border-bottom: 1px solid #e4e4e4;
-  position: sticky;
-  top: 0;
-  z-index: 999;
-
-  h1 {
-    font-size: 0.32rem;
-    font-weight: bold;
-    margin: 0;
-  }
-
-  .manage-btn {
-    padding: 0.08rem 0.2rem;
-    background-color: #FF6B6B;
-    color: #fff;
-    border: none;
-    border-radius: 0.04rem;
-    font-size: 0.28rem;
-    cursor: pointer;
-  }
+  border-bottom: 1px solid #eee;
 }
 
-.cart-tabs {
+.header-title {
+  font-size: 0.32rem;
+  font-weight: bold;
+}
+
+.manage-btn {
+  padding: 0.1rem 0.2rem;
+  background-color: #d44439;
+  color: #fff;
+  border: none;
+  border-radius: 0.05rem;
+  font-size: 0.28rem;
+}
+
+.category-tabs {
   display: flex;
   background-color: #fff;
-  margin-bottom: 0.2rem;
-  border-bottom: 1px solid #e4e4e4;
+  border-bottom: 1px solid #eee;
+}
 
-  .tab-item {
-    flex: 1;
-    padding: 0.2rem 0;
-    text-align: center;
-    font-size: 0.28rem;
-    color: #666;
-    position: relative;
-    cursor: pointer;
+.tab-item {
+  flex: 1;
+  padding: 0.2rem;
+  text-align: center;
+  font-size: 0.28rem;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s;
+}
 
-    &.active {
-      color: #FF6B6B;
-
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0.4rem;
-        height: 0.02rem;
-        background-color: #FF6B6B;
-      }
-    }
-  }
+.tab-item.active {
+  color: #d44439;
+  border-bottom: 2px solid #d44439;
 }
 
 .cart-list {
-  background-color: #fff;
-}
-
-.select-all {
-  display: flex;
-  align-items: center;
-  padding: 0.2rem 0.3rem;
-  border-bottom: 1px solid #e4e4e4;
-
-  input[type="checkbox"] {
-    margin-right: 0.1rem;
-    width: 0.24rem;
-    height: 0.24rem;
-  }
-
-  label {
-    font-size: 0.28rem;
-    color: #333;
-  }
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.2rem;
 }
 
 .cart-item {
   display: flex;
   align-items: center;
-  padding: 0.2rem 0.3rem;
-  border-bottom: 1px solid #f0f0f0;
-  position: relative;
-
-  &:last-child {
-    border-bottom: none;
-  }
+  padding: 0.2rem;
+  margin-bottom: 0.2rem;
+  background-color: #fff;
+  border-radius: 0.05rem;
+  box-shadow: 0 0.02rem 0.05rem rgba(0, 0, 0, 0.1);
 }
 
 .item-select {
+  width: 0.4rem;
   margin-right: 0.2rem;
+}
 
-  input[type="checkbox"] {
-    width: 0.24rem;
-    height: 0.24rem;
-  }
+.item-image {
+  width: 0.8rem;
+  height: 0.8rem;
+  margin-right: 0.2rem;
+  border-radius: 0.05rem;
+  overflow: hidden;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .item-info {
   flex: 1;
-  display: flex;
-  align-items: center;
-
-  .item-image {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 0.08rem;
-    margin-right: 0.2rem;
-    object-fit: cover;
-  }
-
-  .item-details {
-    flex: 1;
-
-    .item-name {
-      font-size: 0.3rem;
-      color: #333;
-      margin-bottom: 0.05rem;
-    }
-
-    .item-description {
-      font-size: 0.24rem;
-      color: #999;
-      margin-bottom: 0.05rem;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .item-price {
-      font-size: 0.32rem;
-      color: #FF6B6B;
-      font-weight: bold;
-    }
-  }
 }
 
-.item-type {
-  padding: 0.05rem 0.1rem;
-  border-radius: 0.04rem;
-  font-size: 0.2rem;
-  color: #fff;
+.item-name {
+  font-size: 0.3rem;
+  font-weight: bold;
+  margin-bottom: 0.1rem;
+}
 
-  &.room-type {
-    background-color: #4ECDC4;
-  }
+.item-desc {
+  font-size: 0.24rem;
+  color: #666;
+  margin-bottom: 0.1rem;
+}
 
-  &.product-type {
-    background-color: #45B7D1;
-  }
+.item-price {
+  font-size: 0.28rem;
+  color: #d44439;
+  font-weight: bold;
+}
+
+.item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.action-btn {
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-bottom: 0.1rem;
+  background-color: transparent;
+  border: none;
+  font-size: 0.24rem;
+  cursor: pointer;
+}
+
+.favorite-btn i {
+  color: #d44439;
+}
+
+.delete-btn i {
+  color: #999;
 }
 
 .empty-cart {
-  text-align: center;
-  padding: 1rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #999;
+}
 
-  .empty-image {
-    width: 2rem;
-    height: 2rem;
-    margin-bottom: 0.3rem;
-    opacity: 0.5;
-  }
-
-  p {
-    font-size: 0.28rem;
-    color: #999;
-    margin-bottom: 0.3rem;
-  }
-
-  .go-shopping-btn {
-    padding: 0.1rem 0.3rem;
-    background-color: #FF6B6B;
-    color: #fff;
-    border: none;
-    border-radius: 0.04rem;
-    font-size: 0.28rem;
-    cursor: pointer;
-  }
+.empty-cart i {
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
 }
 
 .cart-footer {
-  position: fixed;
-  bottom: 0.5rem; /* 为底部菜单留出空间 */
-  left: 0;
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.2rem 0.3rem;
+  padding: 0.2rem;
   background-color: #fff;
-  border-top: 1px solid #e4e4e4;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid #eee;
+}
 
-  .footer-left {
-    font-size: 0.28rem;
-    color: #333;
-  }
+.footer-left {
+  display: flex;
+  align-items: center;
+}
 
-  .footer-right {
-    display: flex;
-    gap: 0.2rem;
+.footer-left input {
+  margin-right: 0.1rem;
+}
 
-    .delete-btn {
-      padding: 0.08rem 0.2rem;
-      background-color: #999;
-      color: #fff;
-      border: none;
-      border-radius: 0.04rem;
-      font-size: 0.28rem;
-      cursor: pointer;
-    }
+.total-price {
+  margin-right: 0.2rem;
+  font-size: 0.3rem;
+  font-weight: bold;
+  color: #d44439;
+}
 
-    .checkout-btn {
-      padding: 0.08rem 0.2rem;
-      background-color: #FF6B6B;
-      color: #fff;
-      border: none;
-      border-radius: 0.04rem;
-      font-size: 0.28rem;
-      cursor: pointer;
-    }
-  }
+.settle-btn {
+  padding: 0.15rem 0.3rem;
+  background-color: #d44439;
+  color: #fff;
+  border: none;
+  border-radius: 0.05rem;
+  font-size: 0.28rem;
 }
 </style>

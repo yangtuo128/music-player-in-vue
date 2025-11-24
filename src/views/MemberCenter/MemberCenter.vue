@@ -141,13 +141,13 @@ export default {
         level: 3,
         expireTime: '2023-12-31',
         status: 'active',
-        statusText: '会员有效期内'
+        statusText: '会员有效期内',
       },
       stats: {
         playCount: 1234,
         collectCount: 567,
         shareCount: 89,
-        followCount: 123
+        followCount: 123,
       },
       currentLevel: 3,
       currentExp: 750,
@@ -158,75 +158,75 @@ export default {
           icon: '🎵',
           title: '无损音质',
           description: '享受高品质无损音乐播放',
-          available: true
+          available: true,
         },
         {
           id: 2,
           icon: '📥',
           title: '免费下载',
           description: '每月可免费下载300首音乐',
-          available: true
+          available: true,
         },
         {
           id: 3,
           icon: '🚫',
           title: '免广告',
           description: '享受无广告音乐体验',
-          available: true
+          available: true,
         },
         {
           id: 4,
           icon: '🎁',
           title: '生日福利',
           description: '生日当月可领取专属礼品',
-          available: false
+          available: false,
         },
         {
           id: 5,
           icon: '🎫',
           title: '演唱会优先购票',
           description: '享受演唱会门票优先购买权',
-          available: true
+          available: true,
         },
         {
           id: 6,
           icon: '👨💼',
           title: '专属客服',
           description: '24小时专属客服服务',
-          available: true
-        }
+          available: true,
+        },
       ],
       levels: [
         {
           level: 1,
           name: '新手会员',
           expRequired: 0,
-          benefits: ['基础音质', '每日推荐']
+          benefits: ['基础音质', '每日推荐'],
         },
         {
           level: 2,
           name: '普通会员',
           expRequired: 500,
-          benefits: ['标准音质', '免费下载100首', '个性化推荐']
+          benefits: ['标准音质', '免费下载100首', '个性化推荐'],
         },
         {
           level: 3,
           name: '高级会员',
           expRequired: 1000,
-          benefits: ['无损音质', '免费下载300首', '免广告', '生日福利']
+          benefits: ['无损音质', '免费下载300首', '免广告', '生日福利'],
         },
         {
           level: 4,
           name: 'VIP会员',
           expRequired: 2000,
-          benefits: ['Hi-Res音质', '免费下载无限首', '免广告', '生日福利', '演唱会优先购票']
+          benefits: ['Hi-Res音质', '免费下载无限首', '免广告', '生日福利', '演唱会优先购票'],
         },
         {
           level: 5,
           name: '至尊VIP',
           expRequired: 5000,
-          benefits: ['Hi-Res音质', '免费下载无限首', '免广告', '生日福利', '演唱会优先购票', '专属客服']
-        }
+          benefits: ['Hi-Res音质', '免费下载无限首', '免广告', '生日福利', '演唱会优先购票', '专属客服'],
+        },
       ],
       dailyTasks: [
         {
@@ -234,29 +234,29 @@ export default {
           title: '每日登录',
           description: '每天登录音乐平台',
           reward: 10,
-          completed: false
+          completed: false,
         },
         {
           id: 2,
           title: '播放音乐',
           description: '播放10首音乐',
           reward: 20,
-          completed: false
+          completed: false,
         },
         {
           id: 3,
           title: '收藏歌单',
           description: '收藏1个歌单',
           reward: 15,
-          completed: false
+          completed: false,
         },
         {
           id: 4,
           title: '分享音乐',
           description: '分享1首音乐到社交平台',
           reward: 25,
-          completed: false
-        }
+          completed: false,
+        },
       ],
       upgradeGuides: [
         {
@@ -265,7 +265,7 @@ export default {
           title: '每日听歌',
           description: '每天听音乐30分钟以上',
           reward: 30,
-          unit: '天'
+          unit: '天',
         },
         {
           id: 2,
@@ -273,7 +273,7 @@ export default {
           title: '收藏歌单',
           description: '收藏喜欢的歌单',
           reward: 10,
-          unit: '个'
+          unit: '个',
         },
         {
           id: 3,
@@ -281,7 +281,7 @@ export default {
           title: '分享音乐',
           description: '分享音乐给好友',
           reward: 20,
-          unit: '次'
+          unit: '次',
         },
         {
           id: 4,
@@ -289,17 +289,17 @@ export default {
           title: '购买会员',
           description: '购买或续费会员',
           reward: 100,
-          unit: '月'
-        }
+          unit: '月',
+        },
       ],
       showTaskModal: false,
-      showUpgradeModal: false
+      showUpgradeModal: false,
     };
   },
   computed: {
     progressPercent() {
       return Math.round((this.currentExp / this.nextLevelExp) * 100);
-    }
+    },
   },
   methods: {
     completeTask(taskId) {
@@ -335,15 +335,17 @@ export default {
         currentExp: this.currentExp,
         nextLevelExp: this.nextLevelExp,
         benefits: this.benefits,
-        dailyTasks: this.dailyTasks
+        dailyTasks: this.dailyTasks,
       }));
-    }
+    },
   },
   mounted() {
     // 从localStorage加载数据
     const savedData = localStorage.getItem('memberData');
     if (savedData) {
-      const { memberInfo, stats, currentLevel, currentExp, nextLevelExp, benefits, dailyTasks } = JSON.parse(savedData);
+      const {
+        memberInfo, stats, currentLevel, currentExp, nextLevelExp, benefits, dailyTasks,
+      } = JSON.parse(savedData);
       this.memberInfo = memberInfo;
       this.stats = stats;
       this.currentLevel = currentLevel;
@@ -361,8 +363,8 @@ export default {
     currentExp: 'saveData',
     nextLevelExp: 'saveData',
     benefits: { handler: 'saveData', deep: true },
-    dailyTasks: { handler: 'saveData', deep: true }
-  }
+    dailyTasks: { handler: 'saveData', deep: true },
+  },
 };
 </script>
 

@@ -1,11 +1,11 @@
 <template>
   <div class="search-box left-right-padding-box" ref="searchBox">
     <back-header color="red" :input='true' :doAfterUserEnter="startSearch"></back-header>
-    
+
     <!-- 顶部菜单栏分类 -->
     <div class="category-tabs">
-      <div 
-        v-for="(tab, index) in categoryTabs" 
+      <div
+        v-for="(tab, index) in categoryTabs"
         :key="index"
         class="tab-item"
         :class="{ active: activeTab === index }"
@@ -13,7 +13,7 @@
       >
         {{ tab.name }}
       </div>
-      
+
       <!-- 搜索管理按钮 -->
       <div class="search-management">
         <router-link to="/search-history" class="management-btn">
@@ -22,7 +22,7 @@
         </router-link>
       </div>
     </div>
-    
+
     <search-list v-if="!showResultPageFlag" :doAfterUserClick='startSearch' :list="hots" title="热门搜索" class="hot-search"></search-list>
     <search-list v-if="!showResultPageFlag" :doAfterUserClick='startSearch' :list="currentHistory" title="历史记录" @clear-history="clearHistory"></search-list>
     <search-result-list v-else :tracks="songList" class="search-result-list"></search-result-list>
@@ -48,7 +48,7 @@ export default {
       categoryTabs: [
         { name: '商品', type: 'product' },
         { name: '店铺', type: 'shop' },
-        { name: '搜索', type: 'search' }
+        { name: '搜索', type: 'search' },
       ],
       activeTab: 0,
       hots: [],
@@ -61,7 +61,7 @@ export default {
     currentHistory() {
       // 根据当前选中的标签过滤搜索历史
       return this.history.filter(item => item.type === this.categoryTabs[this.activeTab].type);
-    }
+    },
   },
   created() {
     this.getData();
@@ -102,10 +102,10 @@ export default {
       const currentType = this.categoryTabs[this.activeTab].type;
       const isExist = this.history.some(item => item.first === theValueToSearch && item.type === currentType);
       if (!isExist) {
-        this.history.push({ 
-          first: theValueToSearch, 
+        this.history.push({
+          first: theValueToSearch,
           type: currentType,
-          searchTime: new Date().toISOString()
+          searchTime: new Date().toISOString(),
         });
         this.saveHistory();
       }
@@ -131,14 +131,14 @@ export default {
   left: 0;
   width: 100%;
   background: white;
-  
+
   .category-tabs {
     display: flex;
     align-items: center;
     background-color: white;
     border-bottom: 1px solid #e4e4e4;
     padding: 0 0.2rem;
-    
+
     .tab-item {
       flex: 1;
       padding: 0.15rem 0;
@@ -147,16 +147,16 @@ export default {
       color: #666;
       border-bottom: 2px solid transparent;
       transition: all 0.3s ease;
-      
+
       &.active {
         color: #d44439;
         border-bottom-color: #d44439;
       }
     }
-    
+
     .search-management {
       width: 0.8rem;
-      
+
       .management-btn {
         display: flex;
         justify-content: center;
@@ -168,7 +168,7 @@ export default {
         padding: 0.05rem 0;
         cursor: pointer;
         text-decoration: none;
-        
+
         .iconfont {
           font-size: 0.12rem;
           margin-left: 0.05rem;
@@ -176,11 +176,11 @@ export default {
       }
     }
   }
-  
+
   .hot-search {
     margin-top: 0.44rem;
   }
-  
+
   .search-result-list {
     padding-top: 0.44rem;
   }
