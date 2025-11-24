@@ -1,33 +1,31 @@
 <template>
-  <div class="cart-container">
+  <div class="cart">
     <!-- 顶部导航 -->
     <div class="cart-header">
-      <div class="header-title">购物车</div>
-      <div class="header-right">
-        <button class="manage-btn" @click="toggleManageMode">
-          {{ isManageMode ? '完成' : '管理' }}
-        </button>
-      </div>
+      <h1>购物车</h1>
+      <button class="manage-btn" @click="toggleManageMode">
+        {{ isManageMode ? '完成' : '管理' }}
+      </button>
     </div>
 
     <!-- 分类标签 -->
     <div class="category-tabs">
-      <div
-        class="tab-item"
+      <div 
+        class="tab-item" 
         :class="{ active: currentCategory === 'all' }"
         @click="switchCategory('all')"
       >
         全部
       </div>
-      <div
-        class="tab-item"
+      <div 
+        class="tab-item" 
         :class="{ active: currentCategory === 'favorite' }"
         @click="switchCategory('favorite')"
       >
         收藏
       </div>
-      <div
-        class="tab-item"
+      <div 
+        class="tab-item" 
         :class="{ active: currentCategory === 'frequent' }"
         @click="switchCategory('frequent')"
       >
@@ -37,17 +35,19 @@
 
     <!-- 购物车列表 -->
     <div class="cart-list">
-      <div
-        class="cart-item"
-        v-for="item in filteredItems"
+      <div 
+        class="cart-item" 
+        v-for="(item, index) in filteredItems" 
         :key="item.id"
       >
         <!-- 选择框 -->
-        <div class="item-select">
-          <input
-            type="checkbox"
-            :checked="item.selected"
-            @change="toggleItemSelect(item.id)"
+        <div class="checkbox-wrapper">
+          <input 
+            type="checkbox" 
+            class="item-checkbox"
+            :checked="item.checked"
+            @change="toggleItemChecked(index)"
+            :disabled="!isManageMode"
           >
         </div>
 
@@ -58,19 +58,17 @@
 
         <!-- 商品信息 -->
         <div class="item-info">
-          <div class="item-name">{{ item.name }}</div>
-          <div class="item-desc">{{ item.description }}</div>
-          <div class="item-price">¥{{ item.price }}</div>
+          <h3 class="item-name">{{ item.name }}</h3>
+          <p class="item-description">{{ item.description }}</p>
+          <div class="item-price">
+            <span class="price">¥{{ item.price }}</span>
+            <span class="unit">{{ item.unit }}</span>
+          </div>
         </div>
 
-        <!-- 操作按钮 -->
-        <div class="item-actions">
-          <button class="action-btn favorite-btn" @click="toggleFavorite(item.id)">
-            <i :class="item.isFavorite ? 'iconfont icon-shoucang1' : 'iconfont icon-shoucang' "></i>
-          </button>
-          <button class="action-btn delete-btn" @click="deleteItem(item.id)">
-            <i class="iconfont icon-shanchu"></i>
-          </button>
+        <!-- 商品类型（房型/商品） -->
+        <div class="item-type">
+          <span class="type-tag">{{ item.type === 'room' ? '房型' : '商品' }}</span>
         </div>
       </div>
     </div>
@@ -78,25 +76,26 @@
     <!-- 空购物车提示 -->
     <div class="empty-cart" v-if="filteredItems.length === 0">
       <i class="iconfont icon-gouwuche"></i>
-      <p>购物车是空的</p>
+      <p>购物车为空</p>
     </div>
 
     <!-- 底部操作栏 -->
-    <div class="cart-footer" v-if="filteredItems.length > 0">
-      <div class="footer-left">
-        <input
-          type="checkbox"
-          :checked="isAllSelected"
-          @change="toggleAllSelect"
+    <div class="cart-footer" v-if="isManageMode && filteredItems.length > 0">
+      <div class="select-all-wrapper">
+        <input 
+          type="checkbox" 
+          class="select-all-checkbox"
+          :checked="isAllChecked"
+          @change="toggleSelectAll"
         >
         <span>全选</span>
       </div>
-      <div class="footer-right">
-        <div class="total-price">
-          合计: ¥{{ totalPrice }}
-        </div>
-        <button class="settle-btn" @click="settle">
-          结算 ({{ selectedCount }})
+      <div class="action-buttons">
+        <button class="delete-btn" @click="deleteSelectedItems" :disabled="selectedItems.length === 0">
+          删除
+        </button>
+        <button class="settle-btn" @click="settleSelectedItems" :disabled="selectedItems.length === 0">
+          结算
         </button>
       </div>
     </div>
@@ -108,295 +107,362 @@ export default {
   name: 'Cart',
   data() {
     return {
-      isManageMode: false,
-      currentCategory: 'all',
+      isManageMode: false, // 是否进入管理模式
+      currentCategory: 'all', // 当前分类（all/favorite/frequent）
       cartItems: [
+        // 模拟数据
         {
           id: 1,
           name: '豪华大床房',
-          description: '面积: 30㎡ | 楼层: 5-10层 | 床型: 1.8m大床',
+          description: '宽敞明亮，配备舒适大床和独立卫生间',
           price: 299,
-          image: 'https://via.placeholder.com/80',
-          selected: false,
-          isFavorite: true,
-          isFrequent: true,
+          unit: '晚',
+          image: 'https://via.placeholder.com/100',
+          type: 'room', // room 表示房型，product 表示商品
+          favorite: true, // 是否收藏
+          frequent: true, // 是否常购
+          checked: false // 是否选中（管理模式下）
         },
         {
           id: 2,
-          name: '商务双床房',
-          description: '面积: 35㎡ | 楼层: 11-15层 | 床型: 1.2m双床',
-          price: 329,
-          image: 'https://via.placeholder.com/80',
-          selected: false,
-          isFavorite: false,
-          isFrequent: true,
+          name: '标准双床房',
+          description: '经济实惠，适合双人入住',
+          price: 199,
+          unit: '晚',
+          image: 'https://via.placeholder.com/100',
+          type: 'room',
+          favorite: false,
+          frequent: true,
+          checked: false
         },
         {
           id: 3,
-          name: '行政套房',
-          description: '面积: 60㎡ | 楼层: 16-20层 | 床型: 2m大床',
-          price: 599,
-          image: 'https://via.placeholder.com/80',
-          selected: false,
-          isFavorite: true,
-          isFrequent: false,
+          name: '酒店特色纪念品',
+          description: '精美的酒店特色纪念品',
+          price: 59,
+          unit: '件',
+          image: 'https://via.placeholder.com/100',
+          type: 'product',
+          favorite: true,
+          frequent: false,
+          checked: false
         },
-      ],
+        {
+          id: 4,
+          name: '高级套房',
+          description: '豪华套房，配备客厅和卧室',
+          price: 599,
+          unit: '晚',
+          image: 'https://via.placeholder.com/100',
+          type: 'room',
+          favorite: false,
+          frequent: false,
+          checked: false
+        }
+      ]
     };
   },
   computed: {
-    // 过滤当前分类的商品
+    // 过滤后的商品列表
     filteredItems() {
       switch (this.currentCategory) {
         case 'favorite':
-          return this.cartItems.filter(item => item.isFavorite);
+          return this.cartItems.filter(item => item.favorite);
         case 'frequent':
-          return this.cartItems.filter(item => item.isFrequent);
-        default:
+          return this.cartItems.filter(item => item.frequent);
+        default: // all
           return this.cartItems;
       }
     },
-    // 全选状态
-    isAllSelected() {
-      return this.filteredItems.length > 0 && this.filteredItems.every(item => item.selected);
+    // 选中的商品列表
+    selectedItems() {
+      return this.filteredItems.filter(item => item.checked);
     },
-    // 已选商品数量
-    selectedCount() {
-      return this.filteredItems.filter(item => item.selected).length;
-    },
-    // 总价
-    totalPrice() {
-      return this.filteredItems
-        .filter(item => item.selected)
-        .reduce((total, item) => total + item.price, 0)
-        .toFixed(2);
-    },
+    // 是否全选
+    isAllChecked() {
+      return this.filteredItems.length > 0 && this.selectedItems.length === this.filteredItems.length;
+    }
   },
   methods: {
     // 切换管理模式
     toggleManageMode() {
       this.isManageMode = !this.isManageMode;
+      // 退出管理模式时取消所有选择
+      if (!this.isManageMode) {
+        this.cartItems.forEach(item => {
+          item.checked = false;
+        });
+      }
     },
     // 切换分类
     switchCategory(category) {
       this.currentCategory = category;
     },
-    // 切换商品选择状态
-    toggleItemSelect(itemId) {
-      const item = this.cartItems.find(item => item.id === itemId);
-      if (item) {
-        item.selected = !item.selected;
-      }
+    // 切换商品选中状态
+    toggleItemChecked(index) {
+      this.filteredItems[index].checked = !this.filteredItems[index].checked;
     },
     // 全选/取消全选
-    toggleAllSelect(e) {
-      const isChecked = e.target.checked;
-      this.filteredItems.forEach((item) => {
-        item.selected = isChecked;
+    toggleSelectAll() {
+      const isChecked = !this.isAllChecked;
+      this.filteredItems.forEach(item => {
+        item.checked = isChecked;
       });
     },
-    // 切换收藏状态
-    toggleFavorite(itemId) {
-      const item = this.cartItems.find(item => item.id === itemId);
-      if (item) {
-        item.isFavorite = !item.isFavorite;
+    // 删除选中的商品
+    deleteSelectedItems() {
+      if (this.selectedItems.length === 0) return;
+      if (confirm(`确定要删除选中的 ${this.selectedItems.length} 个商品吗？`)) {
+        const selectedIds = this.selectedItems.map(item => item.id);
+        this.cartItems = this.cartItems.filter(item => !selectedIds.includes(item.id));
       }
     },
-    // 删除商品
-    deleteItem(itemId) {
-      this.cartItems = this.cartItems.filter(item => item.id !== itemId);
+    // 结算选中的商品
+    settleSelectedItems() {
+      if (this.selectedItems.length === 0) return;
+      alert(`已结算 ${this.selectedItems.length} 个商品，总价：¥${this.calculateTotalPrice()}`);
     },
-    // 结算
-    settle() {
-      const selectedItems = this.filteredItems.filter(item => item.selected);
-      if (selectedItems.length === 0) {
-        alert('请选择要结算的商品');
-        return;
-      }
-      alert(`结算成功！共 ${selectedItems.length} 件商品，总价 ¥${this.totalPrice}`);
-    },
-  },
+    // 计算选中商品的总价
+    calculateTotalPrice() {
+      return this.selectedItems.reduce((total, item) => total + item.price, 0);
+    }
+  }
 };
 </script>
 
-<style scoped>
-.cart-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
+<style scoped lang='less'>
+.cart {
+  min-height: 100vh;
   background-color: #f5f5f5;
-}
+  padding-bottom: 0.6rem; // 为底部菜单留出空间
 
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.2rem;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
-}
+  // 顶部导航
+  .cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 0.44rem;
+    padding: 0 0.15rem;
+    background-color: #fff;
+    border-bottom: 1px solid #e4e4e4;
 
-.header-title {
-  font-size: 0.32rem;
-  font-weight: bold;
-}
+    h1 {
+      font-size: 0.18rem;
+      font-weight: 500;
+      color: #333;
+    }
 
-.manage-btn {
-  padding: 0.1rem 0.2rem;
-  background-color: #d44439;
-  color: #fff;
-  border: none;
-  border-radius: 0.05rem;
-  font-size: 0.28rem;
-}
+    .manage-btn {
+      font-size: 0.16rem;
+      color: #d44439;
+      background-color: transparent;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+  }
 
-.category-tabs {
-  display: flex;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
-}
+  // 分类标签
+  .category-tabs {
+    display: flex;
+    background-color: #fff;
+    border-bottom: 1px solid #e4e4e4;
 
-.tab-item {
-  flex: 1;
-  padding: 0.2rem;
-  text-align: center;
-  font-size: 0.28rem;
-  color: #666;
-  cursor: pointer;
-  transition: color 0.3s;
-}
+    .tab-item {
+      flex: 1;
+      height: 0.4rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.16rem;
+      color: #666;
+      position: relative;
+      cursor: pointer;
 
-.tab-item.active {
-  color: #d44439;
-  border-bottom: 2px solid #d44439;
-}
+      &.active {
+        color: #d44439;
 
-.cart-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.2rem;
-}
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0.3rem;
+          height: 0.02rem;
+          background-color: #d44439;
+        }
+      }
+    }
+  }
 
-.cart-item {
-  display: flex;
-  align-items: center;
-  padding: 0.2rem;
-  margin-bottom: 0.2rem;
-  background-color: #fff;
-  border-radius: 0.05rem;
-  box-shadow: 0 0.02rem 0.05rem rgba(0, 0, 0, 0.1);
-}
+  // 购物车列表
+  .cart-list {
+    padding: 0.1rem;
 
-.item-select {
-  width: 0.4rem;
-  margin-right: 0.2rem;
-}
+    .cart-item {
+      display: flex;
+      align-items: center;
+      background-color: #fff;
+      border-radius: 0.05rem;
+      padding: 0.1rem;
+      margin-bottom: 0.1rem;
+      box-shadow: 0 0.01rem 0.03rem rgba(0, 0, 0, 0.1);
 
-.item-image {
-  width: 0.8rem;
-  height: 0.8rem;
-  margin-right: 0.2rem;
-  border-radius: 0.05rem;
-  overflow: hidden;
-}
+      .checkbox-wrapper {
+        margin-right: 0.1rem;
 
-.item-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+        .item-checkbox {
+          width: 0.18rem;
+          height: 0.18rem;
+          cursor: pointer;
+        }
+      }
 
-.item-info {
-  flex: 1;
-}
+      .item-image {
+        width: 0.8rem;
+        height: 0.8rem;
+        margin-right: 0.1rem;
+        border-radius: 0.05rem;
+        overflow: hidden;
 
-.item-name {
-  font-size: 0.3rem;
-  font-weight: bold;
-  margin-bottom: 0.1rem;
-}
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
 
-.item-desc {
-  font-size: 0.24rem;
-  color: #666;
-  margin-bottom: 0.1rem;
-}
+      .item-info {
+        flex: 1;
 
-.item-price {
-  font-size: 0.28rem;
-  color: #d44439;
-  font-weight: bold;
-}
+        .item-name {
+          font-size: 0.16rem;
+          color: #333;
+          margin-bottom: 0.05rem;
+        }
 
-.item-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+        .item-description {
+          font-size: 0.14rem;
+          color: #999;
+          margin-bottom: 0.05rem;
+          line-height: 1.2;
+        }
 
-.action-btn {
-  width: 0.4rem;
-  height: 0.4rem;
-  margin-bottom: 0.1rem;
-  background-color: transparent;
-  border: none;
-  font-size: 0.24rem;
-  cursor: pointer;
-}
+        .item-price {
+          display: flex;
+          align-items: baseline;
 
-.favorite-btn i {
-  color: #d44439;
-}
+          .price {
+            font-size: 0.18rem;
+            color: #d44439;
+            font-weight: 500;
+          }
 
-.delete-btn i {
-  color: #999;
-}
+          .unit {
+            font-size: 0.14rem;
+            color: #999;
+            margin-left: 0.03rem;
+          }
+        }
+      }
 
-.empty-cart {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #999;
-}
+      .item-type {
+        margin-left: 0.1rem;
 
-.empty-cart i {
-  font-size: 1rem;
-  margin-bottom: 0.2rem;
-}
+        .type-tag {
+          display: inline-block;
+          padding: 0.03rem 0.08rem;
+          font-size: 0.12rem;
+          border-radius: 0.03rem;
+          background-color: #f0f0f0;
+          color: #666;
+        }
+      }
+    }
+  }
 
-.cart-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.2rem;
-  background-color: #fff;
-  border-top: 1px solid #eee;
-}
+  // 空购物车提示
+  .empty-cart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
 
-.footer-left {
-  display: flex;
-  align-items: center;
-}
+    .iconfont {
+      font-size: 0.8rem;
+      color: #ccc;
+      margin-bottom: 0.2rem;
+    }
 
-.footer-left input {
-  margin-right: 0.1rem;
-}
+    p {
+      font-size: 0.16rem;
+      color: #999;
+    }
+  }
 
-.total-price {
-  margin-right: 0.2rem;
-  font-size: 0.3rem;
-  font-weight: bold;
-  color: #d44439;
-}
+  // 底部操作栏
+  .cart-footer {
+    position: fixed;
+    bottom: 0.5rem; // 为底部菜单留出空间
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 0.5rem;
+    padding: 0 0.15rem;
+    background-color: #fff;
+    border-top: 1px solid #e4e4e4;
 
-.settle-btn {
-  padding: 0.15rem 0.3rem;
-  background-color: #d44439;
-  color: #fff;
-  border: none;
-  border-radius: 0.05rem;
-  font-size: 0.28rem;
+    .select-all-wrapper {
+      display: flex;
+      align-items: center;
+
+      .select-all-checkbox {
+        width: 0.18rem;
+        height: 0.18rem;
+        margin-right: 0.05rem;
+        cursor: pointer;
+      }
+
+      span {
+        font-size: 0.16rem;
+        color: #333;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+
+      .delete-btn,
+      .settle-btn {
+        width: 0.8rem;
+        height: 0.35rem;
+        margin-left: 0.1rem;
+        font-size: 0.16rem;
+        border: none;
+        border-radius: 0.05rem;
+        outline: none;
+        cursor: pointer;
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+
+      .delete-btn {
+        background-color: #fff;
+        color: #d44439;
+        border: 1px solid #d44439;
+      }
+
+      .settle-btn {
+        background-color: #d44439;
+        color: #fff;
+      }
+    }
+  }
 }
 </style>
