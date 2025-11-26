@@ -15,38 +15,38 @@
 </template>
 
 <script>
-import { getBanner } from "../../api/Home/Home";
+import { getBanner } from '../../api/Home/Home';
 
 export default {
-  name: "carrousel",
+  name: 'carrousel',
   data() {
     return {
       swiperOption: {
         autoplay: {
-          disableOnInteraction: false // 用户操作swiper后，不停止自动播放
+          disableOnInteraction: false, // 用户操作swiper后，不停止自动播放
         },
         loop: true,
         pagination: {
-          el: ".swiper-pagination"
+          el: '.swiper-pagination',
         },
         lazy: {
-          loadPrevNext: true // 同时预加载前一个和后一个元素
-        }
+          loadPrevNext: true, // 同时预加载前一个和后一个元素
+        },
       },
-      banners: []
+      banners: [],
     };
   },
   methods: {
     getData() {
-      getBanner().then(data => {
+      getBanner().then((data) => {
         this.banners = data.banners;
       });
-    }
+    },
   },
   computed: {
     swiper() {
       return this.$refs.mySwiper.swiper;
-    }
+    },
   },
   mounted() {
     this.getData();
@@ -54,7 +54,7 @@ export default {
     // 然后你就可以使用当前上下文内的swiper对象去做你想做的事了
     // console.log('this is current swiper instance object', this.swiper);
     // this.swiper.slideTo(3, 1000, false);
-  }
+  },
 };
 </script>
 

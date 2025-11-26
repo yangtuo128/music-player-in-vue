@@ -17,9 +17,8 @@
     <section class="play-control-footer">
       <div class="progress-wrap">
         <span class="has-played-time">{{currentTime | formatTime}}</span>
-        <span class="total-progress" @click="handleProgressClick" @mousedown="startDrag">
+        <span class="total-progress">
           <span class="has-played-progress" ref="progress"></span>
-          <span class="progress-dot" ref="progressDot"></span>
         </span>
         <span class="total-time">{{duration | formatTime}}</span>
       </div>
@@ -36,16 +35,9 @@
         <button class="play-next-song-btn">
           <i class="iconfont icon-xiayigexiayishou"></i>
         </button>
-        <button class="volume-btn" @click="toggleVolumePanel">
-          <i :class="volumeIconClass"></i>
+        <button class="other-operation-btn">
+          <i class="iconfont icon-gengduoxiao"></i>
         </button>
-      </div>
-      <!-- 音量控制面板 -->
-      <div class="volume-panel" v-show="showVolumePanel">
-        <div class="volume-slider" @click="handleVolumeClick" @mousedown="startVolumeDrag">
-          <span class="volume-progress" ref="volumeProgress"></span>
-          <span class="volume-dot" ref="volumeDot"></span>
-        </div>
       </div>
     </section>
   </section>
@@ -62,10 +54,6 @@ export default {
   data() {
     return {
       iconClassname: 'iconfont icon-zanting',
-      showVolumePanel: false,
-      volume: 0.7, // 默认音量70%
-      isDragging: false,
-      isVolumeDragging: false,
     };
   },
   computed: {
@@ -86,21 +74,6 @@ export default {
       return this.thisSongInLikelist
         ? 'iconfont icon-aixin1'
         : 'iconfont icon-aixin1 red';
-    },
-    volumeIconClass() {
-      if (this.volume === 0) {
-        return 'iconfont icon-jingyin';
-      } else if (this.volume < 0.5) {
-        return 'iconfont icon-yinliang1';
-      } else {
-        return 'iconfont icon-yinliang2';
-      }
-    },
-    progressPercent() {
-      return this.duration > 0 ? (this.currentTime / this.duration) * 100 : 0;
-    },
-    volumePercent() {
-      return this.volume * 100;
     },
   },
   components: {
@@ -142,96 +115,6 @@ export default {
         }
       }
     },
-    // 进度条点击事件
-    handleProgressClick(e) {
-      if (this.isDragging) return;
-      const progressBar = e.currentTarget;
-      const clickX = e.offsetX;
-      const barWidth = progressBar.offsetWidth;
-      const percent = clickX / barWidth;
-      const newTime = percent * this.duration;
-      
-      // 发送消息给MyAudio组件，设置播放进度
-      this.$root.$emit('setAudioTime', newTime);
-    },
-    // 开始拖拽进度条
-    startDrag(e) {
-      this.isDragging = true;
-      this.drag(e);
-      document.addEventListener('mousemove', this.drag);
-      document.addEventListener('mouseup', this.stopDrag);
-    },
-    // 拖拽进度条
-    drag(e) {
-      if (!this.isDragging) return;
-      const progressBar = this.$refs.progress.parentElement;
-      const barWidth = progressBar.offsetWidth;
-      let clientX = e.clientX;
-      const rect = progressBar.getBoundingClientRect();
-      
-      // 限制拖拽范围在进度条内
-      clientX = Math.max(rect.left, Math.min(rect.right, clientX));
-      const clickX = clientX - rect.left;
-      const percent = clickX / barWidth;
-      const newTime = percent * this.duration;
-      
-      // 更新进度条显示
-      this.$refs.progress.style.width = `${percent * 100}%`;
-      this.$refs.progressDot.style.left = `${percent * 100}%`;
-      
-      // 发送消息给MyAudio组件，设置播放进度
-      this.$root.$emit('setAudioTime', newTime);
-    },
-    // 停止拖拽进度条
-    stopDrag() {
-      this.isDragging = false;
-      document.removeEventListener('mousemove', this.drag);
-      document.removeEventListener('mouseup', this.stopDrag);
-    },
-    // 音量按钮点击事件
-    toggleVolumePanel() {
-      this.showVolumePanel = !this.showVolumePanel;
-    },
-    // 音量条点击事件
-    handleVolumeClick(e) {
-      if (this.isVolumeDragging) return;
-      const volumeBar = e.currentTarget;
-      const clickX = e.offsetX;
-      const barWidth = volumeBar.offsetWidth;
-      this.volume = Math.max(0, Math.min(1, clickX / barWidth));
-      
-      // 发送消息给MyAudio组件，设置音量
-      this.$root.$emit('setAudioVolume', this.volume);
-    },
-    // 开始拖拽音量条
-    startVolumeDrag(e) {
-      this.isVolumeDragging = true;
-      this.volumeDrag(e);
-      document.addEventListener('mousemove', this.volumeDrag);
-      document.addEventListener('mouseup', this.stopVolumeDrag);
-    },
-    // 拖拽音量条
-    volumeDrag(e) {
-      if (!this.isVolumeDragging) return;
-      const volumeBar = this.$refs.volumeProgress.parentElement;
-      const barWidth = volumeBar.offsetWidth;
-      let clientX = e.clientX;
-      const rect = volumeBar.getBoundingClientRect();
-      
-      // 限制拖拽范围在音量条内
-      clientX = Math.max(rect.left, Math.min(rect.right, clientX));
-      const clickX = clientX - rect.left;
-      this.volume = Math.max(0, Math.min(1, clickX / barWidth));
-      
-      // 发送消息给MyAudio组件，设置音量
-      this.$root.$emit('setAudioVolume', this.volume);
-    },
-    // 停止拖拽音量条
-    stopVolumeDrag() {
-      this.isVolumeDragging = false;
-      document.removeEventListener('mousemove', this.volumeDrag);
-      document.removeEventListener('mouseup', this.stopVolumeDrag);
-    },
   },
   watch: {
     isPlaying(newStatus) {
@@ -239,18 +122,8 @@ export default {
       newStatus ? this.toggleToPlayStatus() : this.toggleToStopStatus();
     },
     currentTime(newTime) {
-      // 更新播放进度（非拖拽状态下）
-      if (!this.isDragging && this.$refs.progress) {
-        this.$refs.progress.style.width = `${(newTime / this.duration) * 100}%`;
-        this.$refs.progressDot.style.left = `${(newTime / this.duration) * 100}%`;
-      }
-    },
-    volumePercent(newVal) {
-      // 更新音量条显示
-      if (this.$refs.volumeProgress) {
-        this.$refs.volumeProgress.style.width = `${newVal}%`;
-        this.$refs.volumeDot.style.left = `${newVal}%`;
-      }
+      // 更新播放进度
+      this.$refs.progress.style.width = `${(newTime / this.duration) * 100}%`;
     },
   },
   filters: {
@@ -276,25 +149,6 @@ export default {
   mounted() {
     // 设置页面高度为整屏
     this.setPageHeight();
-    
-    // 初始化进度条和音量条
-    this.$nextTick(() => {
-      if (this.$refs.progress) {
-        this.$refs.progress.style.width = `${this.progressPercent}%`;
-        this.$refs.progressDot.style.left = `${this.progressPercent}%`;
-      }
-      if (this.$refs.volumeProgress) {
-        this.$refs.volumeProgress.style.width = `${this.volumePercent}%`;
-        this.$refs.volumeDot.style.left = `${this.volumePercent}%`;
-      }
-    });
-  },
-  destroyed() {
-    // 移除事件监听器
-    document.removeEventListener('mousemove', this.drag);
-    document.removeEventListener('mouseup', this.stopDrag);
-    document.removeEventListener('mousemove', this.volumeDrag);
-    document.removeEventListener('mouseup', this.stopVolumeDrag);
   },
 };
 </script>
@@ -388,27 +242,14 @@ img[lazy="loading"] {
         color: lightgray;
       }
       .total-progress {
-        position: relative;
         width: 70%;
         height: 0.03rem;
         background: lightgray;
-        cursor: pointer;
         .has-played-progress {
           display: block;
           width: 0;
           height: 100%;
           background-color: #d44439;
-        }
-        .progress-dot {
-          position: absolute;
-          top: 50%;
-          left: 0;
-          transform: translate(-50%, -50%);
-          width: 0.1rem;
-          height: 0.1rem;
-          border-radius: 50%;
-          background-color: #d44439;
-          cursor: pointer;
         }
       }
     }
@@ -430,39 +271,6 @@ img[lazy="loading"] {
       .play-stop-btn {
         .iconfont {
           font-size: 0.5rem;
-        }
-      }
-    }
-    .volume-panel {
-      position: absolute;
-      bottom: 1rem;
-      right: 0.3rem;
-      width: 1.5rem;
-      padding: 0.1rem;
-      background: rgba(0, 0, 0, 0.5);
-      border-radius: 0.05rem;
-      .volume-slider {
-        position: relative;
-        width: 100%;
-        height: 0.03rem;
-        background: lightgray;
-        cursor: pointer;
-        .volume-progress {
-          display: block;
-          width: 70%;
-          height: 100%;
-          background-color: #d44439;
-        }
-        .volume-dot {
-          position: absolute;
-          top: 50%;
-          left: 70%;
-          transform: translate(-50%, -50%);
-          width: 0.1rem;
-          height: 0.1rem;
-          border-radius: 50%;
-          background-color: #d44439;
-          cursor: pointer;
         }
       }
     }

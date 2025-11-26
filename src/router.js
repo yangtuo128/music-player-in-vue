@@ -84,7 +84,7 @@ const router = new Router({
       name: 'RecentPlay',
       component: RecentPlay,
     },
-    { 
+    {
       path: '/message',
       name: 'Message',
       component: Message,
@@ -92,19 +92,19 @@ const router = new Router({
         needLogin: true,
       },
     },
-    { 
-      path: '/member-center',
-      name: 'MemberCenter',
-      component: MemberCenter,
-      meta: { 
-        needLogin: true,
-      },
-    },
-    { 
+    {
       path: '/cart',
       name: 'Cart',
       component: Cart,
-      meta: { 
+      meta: {
+        needLogin: true,
+      },
+    },
+    {
+      path: '/member-center',
+      name: 'MemberCenter',
+      component: MemberCenter,
+      meta: {
         needLogin: true,
       },
     },

@@ -28,36 +28,36 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from 'vuex';
 
-import { logout, getUserDetail } from "../api/SideBar";
+import { logout, getUserDetail } from '../api/SideBar';
 
 export default {
-  props: ["children"],
+  props: ['children'],
   data() {
     return {
       nickname: null,
-      avatarUrl: null
+      avatarUrl: null,
     };
   },
   computed: {
-    ...mapGetters(["loginStatus"])
+    ...mapGetters(['loginStatus']),
   },
   watch: {
     async loginStatus(hasLogined) {
       if (hasLogined) {
         try {
-          const res = await getUserDetail(localStorage.getItem("uid"));
+          const res = await getUserDetail(localStorage.getItem('uid'));
           this.nickname = res.profile.nickname;
           this.avatarUrl = res.profile.avatarUrl;
         } catch (error) {
           console.log(error);
         }
       }
-    }
+    },
   },
   methods: {
-    ...mapActions(["getThenSetLoginStatus"]),
+    ...mapActions(['getThenSetLoginStatus']),
     async logoutThenUpdateLoginStatus() {
       try {
         await logout();
@@ -68,9 +68,9 @@ export default {
     },
     toLoginPage() {
       this.$props.children[1].slideout.close();
-      this.$router.push("/login");
-    }
-  }
+      this.$router.push('/login');
+    },
+  },
 };
 </script>
 

@@ -10,7 +10,7 @@
 <script>
 // 加载动画组件，由spining来控制加载动画的显示
 export default {
-  props: ['spining']
+  props: ['spining'],
 };
 </script>
 

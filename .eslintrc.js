@@ -7,7 +7,7 @@ module.exports = {
     node: true,
   },
   // 启用 airbnb 规则
-  // extends: 'airbnb-base','@vue/airbnb', 
+  // extends: 'airbnb-base','@vue/airbnb',
   extends: ['plugin:vue/essential', 'airbnb-base'],
   // 个人自定义规则
   rules: {

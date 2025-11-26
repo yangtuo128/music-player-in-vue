@@ -97,7 +97,7 @@ module.exports = {
     loaderOptions: {
       css: {
         // options here will be passed to css-loader
-        modules: false
+        modules: false,
       },
 
       postcss: {

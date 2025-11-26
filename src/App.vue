@@ -17,7 +17,7 @@
         <Nav v-if="shouldHaveNav" show-search></Nav>
         <!-- keep-alive的作用之一是：保存未登录状态下，用户的搜索历史。是通过缓存搜索组件和其子组件SearchList做到的 -->
         <!-- <keep-alive :include="['Search', 'SearchList']"> -->
-        <!-- 下面这种写法可能比上面的更好，缓存了更多的组件，性能更优秀--> 
+        <!-- 下面这种写法可能比上面的更好，缓存了更多的组件，性能更优秀-->
         <keep-alive :exclude="['PlaylistDetail', 'MyAudio', 'PlayControl']">
           <router-view></router-view>
         </keep-alive>
@@ -29,12 +29,12 @@
 </template>
 
 <script>
-import Slideout from "vue-slideout";
-import { mapActions } from "vuex";
-import MyAudio from "./components/MyAudio.vue";
-import Nav from "./components/Nav.vue";
-import SideBarMenu from "./components/SideBarMenu.vue";
-import BottomMenu from "./components/BottomMenu.vue";
+import Slideout from 'vue-slideout';
+import { mapActions } from 'vuex';
+import MyAudio from './components/MyAudio.vue';
+import Nav from './components/Nav.vue';
+import SideBarMenu from './components/SideBarMenu.vue';
+import BottomMenu from './components/BottomMenu.vue';
 
 export default {
   components: {
@@ -42,29 +42,29 @@ export default {
     MyAudio,
     SideBarMenu,
     Nav,
-    BottomMenu
+    BottomMenu,
   },
   computed: {
-    shouldHaveNav(){
-      return ['/home', '/my', '/message'].indexOf(this.$route.path) !== -1 && this.$route.path !== '/search'
+    shouldHaveNav() {
+      return ['/home', '/my', '/message'].indexOf(this.$route.path) !== -1 && this.$route.path !== '/search';
     },
-    shouldHaveBottomMenu(){
-      return ['/song', '/play-list-detail'].indexOf(this.$route.path) === -1
-    }
+    shouldHaveBottomMenu() {
+      return ['/song', '/play-list-detail'].indexOf(this.$route.path) === -1;
+    },
   },
   methods: {
-    ...mapActions(["getThenSetLoginStatus"]),
+    ...mapActions(['getThenSetLoginStatus']),
     open() {
-      this.$refs.panel.addEventListener("click", this.closeSlideout, true);
+      this.$refs.panel.addEventListener('click', this.closeSlideout, true);
     },
     close() {
-      this.$refs.panel.removeEventListener("click", this.closeSlideout, true);
+      this.$refs.panel.removeEventListener('click', this.closeSlideout, true);
     },
     closeSlideout(e) {
       // e.stopPropagation();
       e.preventDefault(); // 阻止事件传播，以免触发主页元素的点击事件。   这里很神奇，stopPropagation不起作用，反而preventDefault起到了阻止传播的作用
       this.$refs.slideout.slideout.close();
-    }
+    },
   },
   created() {
     // 如果后台登录接口不稳定，可以用这种临时的解决方案：退出应用后，删除localStorage里的uid
@@ -73,7 +73,7 @@ export default {
   },
   mounted() {
     this.$refs.slideout.slideout.disableTouch(); // 禁止通过左滑打开侧边栏
-  }
+  },
 };
 </script>
 

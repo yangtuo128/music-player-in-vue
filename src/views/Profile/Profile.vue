@@ -150,7 +150,7 @@ export default {
   align-items: center;
   justify-content: center;
   margin-right: 0.2rem;
-  
+
   i {
     font-size: 0.4rem;
     color: white;
@@ -177,7 +177,7 @@ export default {
   border: none;
   outline: none;
   cursor: pointer;
-  
+
   i {
     font-size: 0.2rem;
     color: #d44439;
@@ -197,21 +197,21 @@ export default {
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: background-color 0.3s;
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:hover {
     background-color: #fafafa;
   }
-  
+
   i {
     font-size: 0.18rem;
     color: #d44439;
     margin-right: 0.15rem;
   }
-  
+
   span {
     font-size: 0.16rem;
     color: #333;
@@ -257,7 +257,7 @@ export default {
   border: none;
   outline: none;
   cursor: pointer;
-  
+
   i {
     font-size: 0.2rem;
     color: #999;
@@ -288,7 +288,7 @@ export default {
   border-radius: 0.05rem;
   font-size: 0.14rem;
   outline: none;
-  
+
   &:focus {
     border-color: #d44439;
   }
